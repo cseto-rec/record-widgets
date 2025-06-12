@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speeding Ticket Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .calculator-container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        .calculator-container h3 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .form-group input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .form-group input[type="number"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1.1em;
+            color: #333;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <h3>Speeding Ticket Calculator</h3>
+        <div class="form-group">
+            <label for="speedTravelled">Speed Travelled (km/h):</label>
+            <input type="number" id="speedTravelled" placeholder="e.g., 62">
+            <div id="speedTravelledError" class="error"></div>
+        </div>
+        <div class="form-group">
+            <label for="speedLimit">Speed Limit (km/h):</label>
+            <input type="number" id="speedLimit" placeholder="e.g., 50">
+            <div id="speedLimitError" class="error"></div>
+        </div>
+        <button onclick="calculateTicket()">Calculate Ticket Cost</button>
+        <div class="result" id="ticketCost"></div>
+    </div>
+
+    <script>
+        function calculateTicket() {
+            const speedTravelled = parseFloat(document.getElementById('speedTravelled').value);
+            const speedLimit = parseFloat(document.getElementById('speedLimit').value);
+            const MTO_FEE = 8.25;
+
+            // Clear previous errors and results
+            document.getElementById('speedTravelledError').textContent = '';
+            document.getElementById('speedLimitError').textContent = '';
+            document.getElementById('ticketCost').textContent = '';
+
+            let isValid = true;
+
+            if (isNaN(speedTravelled) || speedTravelled <= 0) {
+                document.getElementById('speedTravelledError').textContent = 'Please enter a valid speed travelled (greater than 0).';
+                isValid = false;
+            }
+            if (isNaN(speedLimit) || speedLimit <= 0) {
+                document.getElementById('speedLimitError').textContent = 'Please enter a valid speed limit (greater than 0).';
+                isValid = false;
+            }
+            if (speedTravelled <= speedLimit && isValid) {
+                document.getElementById('ticketCost').textContent = 'You were not speeding. No ticket.';
+                return;
+            }
+            if (!isValid) {
+                return;
+            }
+
+            const speedOverLimit = speedTravelled - speedLimit;
+            let penaltyRate = 0;
+
+            // Determine penalty rate based on Table 1
+            if (speedOverLimit >= 1 && speedOverLimit <= 19) {
+                penaltyRate = 5.00;
+            } else if (speedOverLimit >= 20 && speedOverLimit <= 29) {
+                penaltyRate = 7.50;
+            } else if (speedOverLimit >= 30 && speedOverLimit <= 49) {
+                penaltyRate = 12.00;
+            } else if (speedOverLimit >= 50) {
+                penaltyRate = 19.50;
+            } else {
+                // This case should ideally be caught by speedTravelled <= speedLimit, but for robustness
+                document.getElementById('ticketCost').textContent = 'Invalid speed input or not speeding.';
+                return;
+            }
+
+            const basePenalty = speedOverLimit * penaltyRate;
+            let additionalFee = 0;
+
+            // Determine additional fee based on Table 2
+            if (basePenalty >= 0 && basePenalty <= 50) {
+                additionalFee = 10;
+            } else if (basePenalty >= 51 && basePenalty <= 75) {
+                additionalFee = 15;
+            } else if (basePenalty >= 76 && basePenalty <= 100) {
+                additionalFee = 20;
+            } else if (basePenalty >= 101 && basePenalty <= 150) {
+                additionalFee = 25;
+            } else if (basePenalty >= 151 && basePenalty <= 200) {
+                additionalFee = 35;
+            } else if (basePenalty >= 201 && basePenalty <= 250) {
+                additionalFee = 50;
+            } else if (basePenalty >= 251 && basePenalty <= 300) {
+                additionalFee = 60;
+            } else if (basePenalty >= 301 && basePenalty <= 350) {
+                additionalFee = 75;
+            } else if (basePenalty >= 351 && basePenalty <= 400) {
+                additionalFee = 85;
+            } else if (basePenalty >= 401 && basePenalty <= 450) {
+                additionalFee = 95;
+            } else if (basePenalty >= 451 && basePenalty <= 500) {
+                additionalFee = 110;
+            } else if (basePenalty >= 501 && basePenalty <= 1000) {
+                additionalFee = 125;
+            } else if (basePenalty > 1000) {
+                // If base penalty exceeds $1000, the table ends at $125.
+                // Assuming it caps at $125 for values greater than $1000 as per table.
+                additionalFee = 125;
+            }
+
+
+            const totalTicketCost = basePenalty + additionalFee + MTO_FEE;
+
+            document.getElementById('ticketCost').textContent = `Estimated Ticket Cost: $${totalTicketCost.toFixed(2)}`;
+        }
+    </script>
+
+</body>
+</html>
